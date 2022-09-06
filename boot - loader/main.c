@@ -96,8 +96,8 @@ EFI_STATUS EFIAPI ExitBootServices(EFI_HANDLE ImageHandle, UINTN MapKey)
 		pattern_idt = ResolveRelativeAddress(pattern_idt, 3, 7); //KiInterruptInitTable
 
 		//https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-220.html
-		*(QWORD*)(pattern_idt + 0x38) = *(QWORD*)(pattern_idt + 0x1A0); //KiInterruptInitTable[1].Handler = KiInterruptInitTable[11].Handler(#NP)
-		*(QWORD*)(pattern_idt + 0x40) = *(QWORD*)(pattern_idt + 0x1A8); //KiInterruptInitTable[1].ShadowHandler = KiInterruptInitTable[11].ShadowHandler(#NP)
+		*(QWORD*)(pattern_idt + 0x38) = *(QWORD*)(pattern_idt + 0x1A0); //KiInterruptInitTable[2].Handler = KiInterruptInitTable[11].Handler(#NP)
+		*(QWORD*)(pattern_idt + 0x40) = *(QWORD*)(pattern_idt + 0x1A8); //KiInterruptInitTable[2].ShadowHandler = KiInterruptInitTable[11].ShadowHandler(#NP)
 
 		nmi_blocked = 1;
 	}
