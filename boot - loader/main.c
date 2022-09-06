@@ -85,17 +85,19 @@ EFI_STATUS EFIAPI ExitBootServices(EFI_HANDLE ImageHandle, UINTN MapKey)
 	LOADER_PARAMETER_BLOCK *loaderBlock = (LOADER_PARAMETER_BLOCK*)(resolvedAddress);
 	KLDR_DATA_TABLE_ENTRY* ntosrknl = GetModuleEntry(&loaderBlock->LoadOrderListHead, L"ntoskrnl.exe");
 
+	// E8 ?? ?? ?? ?? 83 CB FF 48 8B D6
 	QWORD pattern_idt = (QWORD)FindPattern((unsigned char*)ntosrknl->ImageBase, ntosrknl->SizeOfImage,
 		"\xE8\x00\x00\x00\x00\x83\xCB\xFF\x48\x8B\xD6", "x????xxxxxx");
 
 	if (pattern_idt)
 	{
-		pattern_idt = ResolveRelativeAddress(pattern_idt, 1, 5);
+		pattern_idt = ResolveRelativeAddress(pattern_idt, 1, 5); //KiInitializeIdt
 		pattern_idt += 0x1a;
-		pattern_idt = ResolveRelativeAddress(pattern_idt, 3, 7);
+		pattern_idt = ResolveRelativeAddress(pattern_idt, 3, 7); //KiInterruptInitTable
 
-		*(QWORD*)(pattern_idt + 0x38) = *(QWORD*)(pattern_idt + 0x1A0);
-		*(QWORD*)(pattern_idt + 0x40) = *(QWORD*)(pattern_idt + 0x1A8);
+		//https://xem.github.io/minix86/manual/intel-x86-and-64-manual-vol3/o_fe12b1e2a880e0ce-220.html
+		*(QWORD*)(pattern_idt + 0x38) = *(QWORD*)(pattern_idt + 0x1A0); //KiInterruptInitTable[2].Handler = KiInterruptInitTable[11].Handler(#NP)
+		*(QWORD*)(pattern_idt + 0x40) = *(QWORD*)(pattern_idt + 0x1A8); //KiInterruptInitTable[2].ShadowHandler = KiInterruptInitTable[11].ShadowHandler(#NP)
 
 		nmi_blocked = 1;
 	}
